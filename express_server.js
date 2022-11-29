@@ -29,6 +29,7 @@ const generateRandomString = function () {
 // CODE  //
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
+  console.log(templateVars)
   res.render("urls_index", templateVars);
 });
 
@@ -46,16 +47,16 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
-/*
 app.get("/urls/:id", (req, res) => {
+  console.log("Test", req.params.id); 
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] } //req.body.newURL }; //href="#" };
+  console.log(templateVars)
   res.render("urls_show", templateVars);
   //res.redirect(longURL);
 });
-*/
 
 //Redirect URL GET requests to the longURL
-app.get("/urls/:shortURL", (req, res) => {
+app.get("/u/:shortURL", (req, res) => {
   //const longURL = urlDatabase[req.params.shortURL]; 
   res.redirect(urlDatabase[req.params.shortURL]);
 });
