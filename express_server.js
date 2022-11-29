@@ -54,19 +54,23 @@ app.get("/urls/:id", (req, res) => {
 });
 */
 
+//Redirect URL GET requests to the longURL
 app.get("/urls/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
-  res.redirect(longURL);
+  //const longURL = urlDatabase[req.params.shortURL]; 
+  res.redirect(urlDatabase[req.params.shortURL]);
 });
+
+app.post("/urls/:shortURL/delete", (req, res) => {
+  //console.log (req.params.shortURL, "will be deleted.");
+  delete urlDatabase[req.params.shortURL];
+  res.redirect('/urls');
+});
+
+
+
+
 
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
-
-
-app.post("/todos", (request, response) => { response.send(viewToDos()) 
-
-})
-
-//response.redirect() to url?
