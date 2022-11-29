@@ -1,3 +1,4 @@
+// DEPENDENCIES //
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
@@ -5,17 +6,26 @@ const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 
 app.set("view engine", "ejs");
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
-
 const users = {};
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// FUNCTIONS //
+const generateRandomString = function () {
+  let randSixCharStr = "";
+  let alphaNumCharSet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+  for (let x = 0; x < 6; x++) {
+      randSixCharStr += alphaNumCharSet.charAt(Math.floor(Math.random() * alphaNumCharSet.length));
+  }
+  return randSixCharStr;
+};
 
+// CODE  //
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
