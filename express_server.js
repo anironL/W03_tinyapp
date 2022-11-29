@@ -4,6 +4,7 @@ const app = express();
 const PORT = 8080; // default port 8080
 
 const bodyParser = require("body-parser");
+const { response } = require("express");
 
 app.set("view engine", "ejs");
 app.use(express.json());
@@ -36,17 +37,36 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
+//Post a new URL & generate shortURL
 app.post("/urls", (req, res) => {
   console.log(req.params); // Log the POST request body to the console
-  res.send(req.body.longURL); // Respond with 'Ok' (we will replace this)
-//  res.send("OK");
+  //res.send(req.body.longURL); // confirmed that the longURL is posted
+  let shortURL = generateRandomString();
+  urlDatabase[shortURL] = req.body.longURL;
+  res.redirect(`/urls/${shortURL}`);
 });
 
+/*
 app.get("/urls/:id", (req, res) => {
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] } //req.body.newURL }; //href="#" };
   res.render("urls_show", templateVars);
+  //res.redirect(longURL);
 });
+*/
+
+app.get("/urls/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  res.redirect(longURL);
+});
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
+
+app.post("/todos", (request, response) => { response.send(viewToDos()) 
+
+})
+
+//response.redirect() to url?
