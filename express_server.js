@@ -32,8 +32,12 @@ const generateRandomString = function () {
 
 // CODE  //
 app.get("/", (req, res) => {
-  console.log("Cookie Set");
-  res.redirect("/urls");
+  const templateVars = 
+  { 
+    urls: urlDatabase,
+    username: req.cookies["username"], 
+  };
+  res.redirect("/register")
 });
 
 app.get("/urls", (req, res) => {
@@ -42,25 +46,37 @@ app.get("/urls", (req, res) => {
     urls: urlDatabase,
     username: req.cookies["username"], 
   };
-  console.log (templateVars.username);
   res.render("urls_index", templateVars);
 });
 
 
 app.post("/login", (req, res) => {
-  console.log("login post event is executing");
+  console.log("login post event firing");
   res.cookie('username', req.body.userID);
   console.log('Cookies: ', req.cookies)  
-  res.redirect("/")
+  res.redirect("/urls")
 });
 
 app.post("/logout", (req, res) => {
-  console.log("logout post event is executing");
+  console.log("logout post event firing");
   res.clearCookie('username');
   console.log('Cookie (cleared) should return undefined: ', req.cookies)  
-  res.redirect("/")
+  res.redirect("/urls")
 });
 
+app.get("/register", (req, res) => {
+  const templateVars = 
+  { 
+    urls: urlDatabase,
+    username: req.cookies["username"], 
+  };
+  res.render("urls_registration", templateVars);
+});
+
+app.post("/register", (req, res) => {
+  console.log("register POST event firing");
+  res.redirect("/urls")
+});
 
 app.get("/urls/new", (req, res) => {
   const templateVars = 
