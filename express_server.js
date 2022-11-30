@@ -5,7 +5,8 @@ const PORT = 8080; // default port 8080
 
 const bodyParser = require("body-parser");
 const { response } = require("express");
-const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
+const e = require("express");
 
 app.set("view engine", "ejs");
 app.use(express.json());
@@ -19,7 +20,7 @@ const urlDatabase = {
 
 const users = {
   testUser01: {
-    id: "Mr.Bean",
+    id: "testUser01",
     email: "test@test.com",
     password: "irrelephant"
   }
@@ -46,12 +47,19 @@ const doesInputExist = function (inputEmail, inputID) {
   return false;
 };
 
+const userIdFromEmail = function(users, inputEmail) {
+  for (const user in users) {
+    if (users[user].email === inputEmail) {
+      return users[user].id;
+    }
+  }
+};
 
 
 
 // CODE  //
 app.get("/", (req, res) => {
-  res.redirect("/register")
+  res.redirect("/login")
 });
 
 app.get("/urls", (req, res) => {
@@ -66,18 +74,39 @@ app.get("/urls", (req, res) => {
 });
 
 
+app.get("/login", (req, res) => {
+  const user_id = req.cookies["user_id"]
+  
+  const templateVars = 
+  { 
+    user: ""
+  };
+  res.render("urls_login", templateVars);
+});
+
 app.post("/login", (req, res) => {
-  console.log("login post event firing");
-  res.cookie('user_id', req.body.userID);
-  console.log('Cookies: ', req.cookies)  
-  res.redirect("/urls")
+  const userEmail = req.body.email
+  const userPassword = req.body.password 
+  let loginUserID = "";
+
+  if (doesInputExist(userEmail, 0) === false || userEmail.length === 0 || userPassword.length === 0) {
+    res.status(403).send("Invalid Parameters");
+  } else {
+    loginUserID = userIdFromEmail(users, userEmail)
+    if (users[loginUserID].password === userPassword) {
+      res.cookie('user_id', users[loginUserID].id);
+      res.redirect("/urls");
+    } else {
+      res.status(403).send("Invalid Parameters");
+    }
+  }
 });
 
 app.post("/logout", (req, res) => {
   console.log("logout post event firing");
   res.clearCookie('user_id');
   console.log('Cookie (cleared) should return undefined: ', req.cookies)  
-  res.redirect("/urls")
+  res.redirect("/")
 });
 
 app.get("/register", (req, res) => {
@@ -95,9 +124,7 @@ app.post("/register", (req, res) => {
 
   if (doesInputExist (userEmail, randUserID) === true || userEmail.length === 0 || userPassword.length === 0) {
     res.status(400).send("Invalid Request");
-  } 
-
-  else {
+  } else {
     users[randUserID] = {
       id: randUserID,
       email: userEmail,
@@ -113,14 +140,11 @@ app.post("/register", (req, res) => {
 //Renders page for new URL requests: urls_new.ejs
 app.get("/urls/new", (req, res) => {
   const user_id = req.cookies["user_id"]
-  
   const templateVars = 
   { 
     urls: urlDatabase,
     user: users[user_id], 
   };
-  console.log (templateVars.username);
-  
   res.render("urls_new", templateVars);
 });
 
