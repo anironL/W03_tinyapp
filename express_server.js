@@ -17,7 +17,13 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-const users = {};
+const users = {
+  testUser01: {
+    id: "Mr.Bean",
+    email: "test@test.com",
+    password: "irrelephant"
+  }
+};
 
 
 
@@ -30,6 +36,18 @@ const generateRandomString = function () {
   }
   return randSixCharStr;
 };
+
+const doesInputExist = function (inputEmail, inputID) {
+  for (const key in users) {   
+    if (inputEmail === users[key].email || inputID === users[key].id) {
+      return true;
+    }
+  }
+  return false;
+};
+
+
+
 
 // CODE  //
 app.get("/", (req, res) => {
@@ -75,16 +93,22 @@ app.post("/register", (req, res) => {
   const userEmail = req.body.email
   const userPassword = req.body.password
 
-  users[randUserID] = {
-    id: randUserID,
-    email: userEmail,
-    password: userPassword,
-  }
+  if (doesInputExist (userEmail, randUserID) === true || userEmail.length === 0 || userPassword.length === 0) {
+    res.status(400).send("Invalid Request");
+  } 
 
-  console.log (users);
-  res.cookie('user_id', users[randUserID].id);
-  res.redirect('/urls');
+  else {
+    users[randUserID] = {
+      id: randUserID,
+      email: userEmail,
+      password: userPassword,
+    }
+    console.log (users);
+    res.cookie('user_id', users[randUserID].id);
+    res.redirect('/urls');
+  }
 });
+
 
 //Renders page for new URL requests: urls_new.ejs
 app.get("/urls/new", (req, res) => {
