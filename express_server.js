@@ -52,15 +52,14 @@ app.post("/login", (req, res) => {
   res.cookie('username', req.body.userID);
   console.log('Cookies: ', req.cookies)  
   res.redirect("/")
-  
-  //users.username = req.body.userID
-  //console.log('This is the user: ', users.username);
- 
-
-
-
 });
 
+app.post("/logout", (req, res) => {
+  console.log("logout post event is executing");
+  res.clearCookie('username');
+  console.log('Cookie (cleared) should return undefined: ', req.cookies)  
+  res.redirect("/")
+});
 
 
 app.get("/urls/new", (req, res) => {
