@@ -19,6 +19,12 @@
       </div>
     </div>
 
+    <% if (username) {%>
+      <form class="form-inline" action="/login" method="POST">
+        <label> Logged in as: <%= username %> </label>
+        <button type="submit" class="btn btn-outline-dark" style="margin: 1em">Logout</button>
+      </form>
+    <% } else { %>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <form class="form-inline" action="/login" method="POST">
         <div class="form-group mx-sm-3">
@@ -31,11 +37,11 @@
             style="width: 200px; margin: 1em"
           />
         </div>
-        <button type="submit" class="btn btn-primary" style="margin: 1em">Login</button>
-        <button type="submit" class="btn btn-primary" style="margin: 1em">Register</button>
+        <button type="submit" class="btn btn-outline-dark" style="margin: 1em">Login</button>
       </form>
     </div>
 
+    <% } %>
 
   </nav>
 </header>

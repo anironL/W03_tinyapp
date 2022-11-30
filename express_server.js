@@ -17,12 +17,6 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-const templateVars = {
-  username: req.cookies["username"]
-  // ... any other vars
-};
-res.render("urls_index", templateVars);
-
 const users = {};
 
 
@@ -38,12 +32,17 @@ const generateRandomString = function () {
 
 // CODE  //
 app.get("/", (req, res) => {
+  console.log("Cookie Set");
   res.redirect("/urls");
-  console.log("Cookie Set")
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = 
+  { 
+    urls: urlDatabase,
+    username: req.cookies["username"], 
+  };
+  console.log (templateVars.username);
   res.render("urls_index", templateVars);
 });
 
@@ -52,13 +51,26 @@ app.post("/login", (req, res) => {
   console.log("login post event is executing");
   res.cookie('username', req.body.userID);
   console.log('Cookies: ', req.cookies)  
-  res.redirect("/urls")
+  res.redirect("/")
+  
+  //users.username = req.body.userID
+  //console.log('This is the user: ', users.username);
+ 
+
+
+
 });
 
 
 
 app.get("/urls/new", (req, res) => {
-  const templateVars = { urls: urlDatabase }
+  const templateVars = 
+  { 
+    urls: urlDatabase,
+    username: req.cookies["username"], 
+  };
+  console.log (templateVars.username);
+  
   res.render("urls_new", templateVars);
 });
 
@@ -72,7 +84,12 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] } //req.body.newURL }; //href="#" };
+  const templateVars = 
+  { 
+    id: req.params.id,
+    longURL: urlDatabase[req.params.id],
+    username: req.cookies["username"], 
+  };
   res.render("urls_show", templateVars);
   //res.redirect(longURL);
 });
