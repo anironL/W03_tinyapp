@@ -6,6 +6,8 @@ const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 const { response } = require("express");
 const cookieParser = require('cookie-parser');
+
+const bcrypt = require("bcryptjs");
 const e = require("express");
 
 app.set("view engine", "ejs");
@@ -28,7 +30,7 @@ const users = {
   aJ48lW: {
     id: "aJ48lW",
     email: "test@test.com",
-    password: "irrelephant"
+    password: bcrypt.hashSync("irrelephant", 10)
   }
 };
 
@@ -130,7 +132,8 @@ app.post("/login", (req, res) => {
     res.status(403).send("Invalid Parameters");
   } else {
     loginUserID = userIdFromEmail(users, userEmail)
-    if (users[loginUserID].password === userPassword) {
+
+    if (bcrypt.compareSync(userPassword, users[loginUserID].password) === true) {
       res.cookie('user_id', users[loginUserID].id);
       res.redirect("/urls");
     } else {
@@ -163,6 +166,10 @@ app.post("/register", (req, res) => {
   const randUserID = generateRandomString();
   const userEmail = req.body.email
   const userPassword = req.body.password
+  const hashedPassword = bcrypt.hashSync(userPassword, 10);
+
+// const password = "purple-monkey-dinosaur"; // found in the req.body object
+// const hashedPassword = bcrypt.hashSync(password, 10);
 
   if (doesInputExist (userEmail, randUserID) === true || userEmail.length === 0 || userPassword.length === 0) {
     res.status(400).send("Invalid Request.");
@@ -170,7 +177,7 @@ app.post("/register", (req, res) => {
     users[randUserID] = {
       id: randUserID,
       email: userEmail,
-      password: userPassword,
+      password: hashedPassword,
     }
     console.log (users);
     res.cookie('user_id', users[randUserID].id);
