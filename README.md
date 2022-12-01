@@ -5,10 +5,19 @@ TinyApp is a full stack web application built with Node and Express that allows 
 ## Final Product
 
 !["Login"](https://github.com/anironL/W03_tinyapp/blob/main/docs/localhost_8080_login_page.png)
+
+*Registration Page*
+
 !["Register"](https://github.com/anironL/W03_tinyapp/blob/main/docs/localhost_8080_register_page.png)
-!["Index page"](https://github.com/anironL/W03_tinyapp/blob/main/docs/localhost_8080_urls_index_page.png)
+
+*Create and share short URL*
+
 !["Create short URLs."](https://github.com/anironL/W03_tinyapp/blob/main/docs/localhost_8080_urls_create_shortURL.png)
 !["Share and edit created URLs."](https://github.com/anironL/W03_tinyapp/blob/main/docs/localhost_8080_urls_edit_longURL.png)
+
+*Index Page with created link*
+
+!["Index page"](https://github.com/anironL/W03_tinyapp/blob/main/docs/localhost_8080_urls_index_page.png)
 
 ## Dependencies
 
