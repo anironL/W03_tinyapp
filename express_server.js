@@ -27,23 +27,8 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000 // Cookie Options: 24 hours
 }))
 
-const urlDatabase = {
-  b6UTxQ: {
-    longURL: "https://www.tsn.ca",
-    userID: "aJ48lW",
-  },
-  i3BoGr: {
-    longURL: "https://www.google.ca",
-    userID: "aJ48lW",
-  },
-};
-const users = {
-  aJ48lW: {
-    id: "aJ48lW",
-    email: "test@test.com",
-    password: bcrypt.hashSync("irrelephant", 10)
-  }
-};
+const urlDatabase = {};
+const users = {};
 
 // CODE  //
 //Redirects traffic from homepage to /login.
