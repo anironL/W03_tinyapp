@@ -46,14 +46,13 @@ const users = {
 };
 
 // CODE  //
+//Redirects traffic from homepage to /login.
 app.get("/", (req, res) => {
-  console.log(users)
-  res.redirect("/login")
+  res.redirect("/login");
 });
-
+//Render index page for URLs: urls_index.ejs
 app.get("/urls", (req, res) => {
-  const user_id = req.session.user_id
-  
+  const user_id = req.session.user_id;
   const templateVars = 
   { 
     urls: urlsForUser(urlDatabase, user_id),
@@ -66,7 +65,7 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
   }
 });
-
+//Render page for login: urls_login.ejs; redirect logged in users to urls page. 
 app.get("/login", (req, res) => {
   const user_id = req.session.user_id
   const templateVars = 
@@ -80,19 +79,18 @@ app.get("/login", (req, res) => {
   res.render("urls_login", templateVars);
   }
 });
-
+//Post user login credentials and generate session cookie if they match an entry in users
 app.post("/login", (req, res) => {
-  const userEmail = req.body.email
-  const userPassword = req.body.password 
+  const userEmail = req.body.email;
+  const userPassword = req.body.password;
   let loginUserID = "";
 
   if (doesInputExist(users, userEmail, 0) === false || userEmail.length === 0 || userPassword.length === 0) {
     res.status(403).send("Invalid Parameters");
   } else {
-    loginUserID = getUserByEmail(users, userEmail)
+    loginUserID = getUserByEmail(users, userEmail);
 
     if (bcrypt.compareSync(userPassword, users[loginUserID].password) === true) {
-      // res.cookie('user_id', users[loginUserID].id);
       req.session.user_id = loginUserID;
       res.redirect("/urls");
     } else {
@@ -100,35 +98,32 @@ app.post("/login", (req, res) => {
     }
   }
 });
-
+//Log out the currently logged in user and deletes session cookies. 
 app.post("/logout", (req, res) => {
   res.clearCookie('session');
   res.clearCookie('session.sig');
-  // console.log('Cookie (cleared) should return undefined: ', req.cookies)  
-  res.redirect("/")
+  res.redirect("/");
 });
-
+//Render page for new registrations: urls_registration.ejs
 app.get("/register", (req, res) => {
-  const user_id = req.session.user_id
+  const user_id = req.session.user_id;
   const templateVars = 
   { 
     user: "" 
   };
+
   if (userCookieLoggedIn(users, user_id) === true) {
     res.redirect("/urls");
   } else {
   res.render("urls_registration", templateVars);
   }
 });
-
+//Post a new user object to users if it does not already exist
 app.post("/register", (req, res) => {
   const randUserID = generateRandomString();
-  const userEmail = req.body.email
-  const userPassword = req.body.password
+  const userEmail = req.body.email;
+  const userPassword = req.body.password;
   const hashedPassword = bcrypt.hashSync(userPassword, 10);
-
-// const password = "purple-monkey-dinosaur"; // found in the req.body object
-// const hashedPassword = bcrypt.hashSync(password, 10);
 
   if (doesInputExist (users, userEmail, randUserID) === true || userEmail.length === 0 || userPassword.length === 0) {
     res.status(400).send("Invalid Request.");
@@ -137,50 +132,43 @@ app.post("/register", (req, res) => {
       id: randUserID,
       email: userEmail,
       password: hashedPassword,
-    }
-    console.log (users);
-    // res.cookie('user_id', users[randUserID].id);
+    };
     req.session.user_id = randUserID;
     res.redirect('/urls');
   }
 });
-
-//Renders page for new URL requests: urls_new.ejs
+//Render page for new URL requests: urls_new.ejs
 app.get("/urls/new", (req, res) => {
-  const user_id = req.session.user_id
+  const user_id = req.session.user_id;
   const templateVars = 
   { 
     urls: urlsForUser(urlDatabase, user_id),
     user: users[user_id], 
   };
+
   if (userCookieLoggedIn(users, user_id) === false) {
     res.redirect("/login");
   } else { 
   res.render("urls_new", templateVars);
   }
 });
-
 //Post a new URL & generate shortURL then redirect to the summary page
 app.post("/urls", (req, res) => {
-  const user_id = req.session.user_id
-
+  const user_id = req.session.user_id;
   if (userCookieLoggedIn(users, user_id) === false) {
     res.redirect("/login");
   } else { 
   let shortURL = generateRandomString();
-
   urlDatabase[shortURL] = {
     longURL: req.body.longURL,
     userID: user_id
-  }
-  // res.send (urlDatabase[shortURL])
-  res.redirect(`/urls/${shortURL}`);
+  };
+    res.redirect(`/urls/${shortURL}`);
   }
 });
-
 //Default page, shows indexed URLs in urlDatabase
 app.get("/urls/:id", (req, res) => {
-  const user_id = req.session.user_id
+  const user_id = req.session.user_id;
   const templateVars = 
   { 
     id: req.params.id,
@@ -188,14 +176,12 @@ app.get("/urls/:id", (req, res) => {
     user: users[user_id], 
     urls: urlDatabase
   };
-
   res.render("urls_show", templateVars);
 });
-
 //Edit the longURL associated with a shortURL
 app.post("/urls/:id", (req, res) => {
-  const user_id = req.session.user_id
-  const urls = urlsForUser(urlDatabase, user_id)
+  const user_id = req.session.user_id;
+  const urls = urlsForUser(urlDatabase, user_id);
 
   if (userCookieLoggedIn(users, user_id) === false) {
     res.status(401).send("Insufficient authorization. Please log in.");
@@ -205,16 +191,12 @@ app.post("/urls/:id", (req, res) => {
     urlDatabase[shortURL] = {
       longURL: req.body.newURL,
       userID: user_id
-    }
-    res.redirect("/urls")
+    };
+    res.redirect("/urls");
   } else {
-    console.log("ShortURL:", req.params.shortURL, "Keys:", Object.keys(urls))
-    console.log("Params:", req.params.id, "UserURLS:", urlsForUser(urlDatabase, user_id))
-    
-    res.status(401).send("Account not authorized.")
+    res.status(401).send("Account not authorized.");
   }
 });
-
 //Redirect URL GET requests to the longURL
 app.get("/u/:shortURL", (req, res) => {
   let inputURL = req.params.shortURL;
@@ -224,11 +206,10 @@ app.get("/u/:shortURL", (req, res) => {
     res.redirect(urlDatabase[req.params.shortURL].longURL);
   }
 });
-
 //Delete urlDatabase entry for specified shortURL key
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const user_id = req.session.user_id
-  const urls = urlsForUser(urlDatabase, user_id)
+  const user_id = req.session.user_id;
+  const urls = urlsForUser(urlDatabase, user_id);
   
   if (userCookieLoggedIn(users, user_id) === false) {
     res.status(401).send("Insufficient authorization. Please log in.");
@@ -236,14 +217,10 @@ app.post("/urls/:shortURL/delete", (req, res) => {
     delete urlDatabase[req.params.shortURL];
     res.redirect('/urls');
   } else {
-    res.status(401).send("Account not authorized.")
+    res.status(401).send("Account not authorized.");
   }
 });
-
-
-
-
-
+//Server active message
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
