@@ -25,8 +25,8 @@ const urlDatabase = {
 };
 
 const users = {
-  testUser01: {
-    id: "testUser01",
+  aJ48lW: {
+    id: "aJ48lW",
     email: "test@test.com",
     password: "irrelephant"
   }
@@ -96,7 +96,7 @@ app.get("/urls", (req, res) => {
   
   const templateVars = 
   { 
-    urls: urlDatabase,
+    urls: urlsForUser(urlDatabase, user_id),
     user: users[user_id], 
   };
 
@@ -183,7 +183,7 @@ app.get("/urls/new", (req, res) => {
   const user_id = req.cookies["user_id"]
   const templateVars = 
   { 
-    urls: urlDatabase,
+    urls: urlsForUser(urlDatabase, user_id),
     user: users[user_id], 
   };
   if (userCookieLoggedIn(users, user_id) === false) {
@@ -204,7 +204,7 @@ app.post("/urls", (req, res) => {
 
   urlDatabase[shortURL] = {
     longURL: req.body.longURL,
-    userID: "aJ48lW"
+    userID: user_id
   }
   // res.send (urlDatabase[shortURL])
   res.redirect(`/urls/${shortURL}`);
@@ -219,7 +219,7 @@ app.get("/urls/:id", (req, res) => {
     id: req.params.id,
     longURL: urlDatabase[req.params.id],
     user: users[user_id], 
-    urls: urlDatabase,
+    urls: urlDatabase
   };
 
   res.render("urls_show", templateVars);
@@ -228,17 +228,19 @@ app.get("/urls/:id", (req, res) => {
 //Redirect from shortURL to longURL site
 app.post("/urls/:id", (req, res) => {
   const user_id = req.cookies["user_id"]
-    
+  const urls = urlsForUser(urlDatabase, user_id)
+
   if (userCookieLoggedIn(users, user_id) === false) {
     res.status(401).send("Insufficient authorization. Please log in.");
-  } else {
-  let shortURL = req.params.id;
+  } else if (Object.keys(urls).includes(req.params.shortURL)) {
+    let shortURL = req.params.id;
 
-  urlDatabase[shortURL] = {
-    longURL: req.body.newURL,
-    userID: "aJ48lW"
-  }
-  res.redirect("/urls");
+    urlDatabase[shortURL] = {
+      longURL: req.body.newURL,
+      userID: user_id
+    }
+  } else {
+    res.status(401).send("Account not authorized.")
   }
 });
 
@@ -255,12 +257,15 @@ app.get("/u/:shortURL", (req, res) => {
 //Delete urlDatabase entry for specified shortURL key
 app.post("/urls/:shortURL/delete", (req, res) => {
   const user_id = req.cookies["user_id"]
-
+  const urls = urlsForUser(urlDatabase, user_id)
+  
   if (userCookieLoggedIn(users, user_id) === false) {
     res.status(401).send("Insufficient authorization. Please log in.");
-  } else {
+  } else if (Object.keys(urls).includes(req.params.shortURL)) {
     delete urlDatabase[req.params.shortURL];
     res.redirect('/urls');
+  } else {
+    res.status(401).send("Account not authorized.")
   }
 });
 
