@@ -14,8 +14,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser())
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
 };
 
 const users = {
@@ -69,6 +75,14 @@ const userCookieLoggedIn = function (users, cookie) {
   } return false;
 }
 
+const urlsForUser = function (urlDatabase, id) {
+  const userURLs = {};
+  for (const shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userID === id) {
+      userURLs[shortURL] = urlDatabase[shortURL]
+    }
+  } return userURLs;
+} 
 
 
 
@@ -181,14 +195,18 @@ app.get("/urls/new", (req, res) => {
 
 //Post a new URL & generate shortURL then redirect to the summary page
 app.post("/urls", (req, res) => {
-  // console.log(req.params); // Log the POST request body to the console
   const user_id = req.cookies["user_id"]
-  
+
   if (userCookieLoggedIn(users, user_id) === false) {
     res.redirect("/login");
   } else { 
   let shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
+
+  urlDatabase[shortURL] = {
+    longURL: req.body.longURL,
+    userID: "aJ48lW"
+  }
+  // res.send (urlDatabase[shortURL])
   res.redirect(`/urls/${shortURL}`);
   }
 });
@@ -201,19 +219,25 @@ app.get("/urls/:id", (req, res) => {
     id: req.params.id,
     longURL: urlDatabase[req.params.id],
     user: users[user_id], 
+    urls: urlDatabase,
   };
+
   res.render("urls_show", templateVars);
 });
 
 //Redirect from shortURL to longURL site
 app.post("/urls/:id", (req, res) => {
   const user_id = req.cookies["user_id"]
-  
+    
   if (userCookieLoggedIn(users, user_id) === false) {
     res.status(401).send("Insufficient authorization. Please log in.");
   } else {
   let shortURL = req.params.id;
-  urlDatabase[shortURL] = req.body.newURL;
+
+  urlDatabase[shortURL] = {
+    longURL: req.body.newURL,
+    userID: "aJ48lW"
+  }
   res.redirect("/urls");
   }
 });
@@ -224,7 +248,7 @@ app.get("/u/:shortURL", (req, res) => {
   if (doesShortURLExist(urlDatabase, inputURL) === false) {
     res.status(404).send("Requested resource not found.");
   } else {
-    res.redirect(urlDatabase[req.params.shortURL]);
+    res.redirect(urlDatabase[req.params.shortURL].longURL);
   }
 });
 
