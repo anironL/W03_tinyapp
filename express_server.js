@@ -43,9 +43,8 @@ app.get("/urls", (req, res) => {
     urls: urlsForUser(urlDatabase, user_id),
     user: users[user_id], 
   };
-
   if (userCookieLoggedIn(users, user_id) === false) {
-    res.redirect("/login");
+    res.status(401).send("Insufficient authorization. Please log in.");;
   } else {
   res.render("urls_index", templateVars);
   }
@@ -154,14 +153,21 @@ app.post("/urls", (req, res) => {
 //Default page, shows indexed URLs in urlDatabase
 app.get("/urls/:id", (req, res) => {
   const user_id = req.session.user_id;
+  let inputURL = req.params.id;
   const templateVars = 
   { 
     id: req.params.id,
     longURL: urlDatabase[req.params.id],
     user: users[user_id], 
-    urls: urlDatabase
+    urls: urlsForUser(urlDatabase, user_id)
   };
+  if (doesShortURLExist(urlDatabase, inputURL) === false) {
+  res.status(404).send("Requested resource not found."); 
+  } else if (userCookieLoggedIn(users, user_id) === false || doesShortURLExist(templateVars.urls, inputURL) === false) {
+    res.status(401).send("Insufficient authorization. Please log in.");;
+  } else {
   res.render("urls_show", templateVars);
+  }
 });
 //Edit the longURL associated with a shortURL
 app.post("/urls/:id", (req, res) => {
